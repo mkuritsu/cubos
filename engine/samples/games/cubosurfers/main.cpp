@@ -11,6 +11,7 @@
 #include "obstacle.hpp"
 #include "player.hpp"
 #include "spawner.hpp"
+#include "accumulated_time.hpp"
 
 using namespace cubos::engine;
 
@@ -23,6 +24,7 @@ int main()
     Cubos cubos{};
 
     cubos.plugin(defaultsPlugin);
+    cubos.plugin(accumulatedTimePlugin);
     cubos.plugin(spawnerPlugin);
     cubos.plugin(obstaclePlugin);
     cubos.plugin(playerPlugin);
@@ -44,20 +46,20 @@ int main()
         });
 
     cubos.system("restart the game on input")
-        .call([](Commands cmds, const Assets& assets, const Input& input, Query<Entity> all) {
+        .call([](Commands cmds, const Assets& assets, const Input& input, AccumulatedTime& at, Query<Entity> all) {
             if (input.justPressed("restart"))
             {
                 for (auto [ent] : all)
                 {
                     cmds.destroy(ent);
                 }
-
+                at.time = 0.0F;
                 cmds.spawn(assets.read(SceneAsset)->blueprint);
             }
         });
 
     cubos.system("detect player vs obstacle collisions")
-        .call([](Commands cmds, const Assets& assets, Query<const Player&, const CollidingWith&, const Obstacle&> collisions, Query<Entity> all) {
+        .call([](Commands cmds, const Assets& assets, AccumulatedTime& at, Query<const Player&, const CollidingWith&, const Obstacle&> collisions, Query<Entity> all) {
             for (auto [player, collidingWith, obstacle] : collisions)
             {
                 (void)player; // here to shut up 'unused variable warning', you can remove it
@@ -66,6 +68,7 @@ int main()
                 {
                     cmds.destroy(ent);
                 }
+                at.time = 0.0F;
                 cmds.spawn(assets.read(SceneAsset)->blueprint);
             }
         });
