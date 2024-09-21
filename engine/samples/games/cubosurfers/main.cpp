@@ -12,6 +12,9 @@
 #include "player.hpp"
 #include "spawner.hpp"
 #include "accumulated_time.hpp"
+#include "armor.hpp"
+#include "powerup.hpp"
+#include "score.hpp"
 
 using namespace cubos::engine;
 
@@ -25,9 +28,12 @@ int main()
 
     cubos.plugin(defaultsPlugin);
     cubos.plugin(accumulatedTimePlugin);
-    cubos.plugin(spawnerPlugin);
+    cubos.plugin(scorePlugin);
     cubos.plugin(obstaclePlugin);
     cubos.plugin(playerPlugin);
+    cubos.plugin(armorPlugin);
+    cubos.plugin(powerUpPlugin);
+    cubos.plugin(spawnerPlugin);
 
     cubos.startupSystem("configure settings").tagged(settingsTag).call([](Settings& settings) {
         settings.setString("assets.io.path", SAMPLE_ASSETS_FOLDER);
@@ -59,11 +65,10 @@ int main()
         });
 
     cubos.system("detect player vs obstacle collisions")
-        .call([](Commands cmds, const Assets& assets, AccumulatedTime& at, Query<const Player&, const CollidingWith&, const Obstacle&> collisions, Query<Entity> all) {
-            for (auto [player, collidingWith, obstacle] : collisions)
+        .without<Armor>()
+        .call([](Commands cmds, const Assets& assets, AccumulatedTime& at, Query<Entity, const Player&, const CollidingWith&, const Obstacle&> collisions, Query<Entity> all) {
+            for (auto [playerEntity, player, collidingWith, obstacle] : collisions)
             {
-                (void)player; // here to shut up 'unused variable warning', you can remove it
-                CUBOS_INFO("Player collided with an obstacle!");
                 for (auto [ent] : all)
                 {
                     cmds.destroy(ent);
