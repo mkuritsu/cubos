@@ -9,6 +9,8 @@
 #include <cubos/engine/assets/plugin.hpp>
 #include <cubos/engine/transform/plugin.hpp>
 #include <cubos/engine/collisions/shapes/box.hpp>
+#include <cubos/engine/collisions/plugin.hpp>
+#include <cubos/engine/collisions/collider.hpp>
 
 #include "powerup.hpp"
 #include "obstacle.hpp"
@@ -36,6 +38,7 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
     cubos.depends(powerUpPlugin);
     cubos.depends(renderVoxelsPlugin);
     cubos.depends(obstaclePlugin);
+    cubos.depends(collisionsPlugin);
 
     cubos.component<Spawner>();
 
@@ -45,19 +48,10 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
             {
                 spawner.accumulator += dt.value();
                 spawner.powerUpAccumulator += dt.value();
-                if (spawner.accumulator >= spawner.period)
-                {
-                    spawner.accumulator -= spawner.period;
-
-                    Position spawnPosition = position;
-                    int offset = (rand() % 3) - 1;
-                    spawnPosition.vec.x += static_cast<float>(offset) * spawner.laneWidth;
-
-                    commands.spawn(assets.read(spawner.scene)->blueprint).add(spawner.sceneRoot, spawnPosition);
-                }
                 if (spawner.powerUpAccumulator >= spawner.powerUpPeriod)
                 {
                     spawner.powerUpAccumulator -= spawner.powerUpPeriod;
+                    spawner.accumulator -= spawner.period;
                     
                     Position spawnPosition = position;
                     int offset = (rand() % 3) - 1;
@@ -68,6 +62,7 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
                         .add(spawnPosition)
                         .add(PowerUp{powerUpType})
                         .add(BoxCollisionShape{cubos::core::geom::Box{glm::vec3{3.0F, 7.0F, 2.0F}}})
+                        .add(Collider{})
                         .entity();
                     
                     switch (powerUpType)
@@ -81,6 +76,16 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
                     default:
                         break;
                     }
+                }
+                if (spawner.accumulator >= spawner.period)
+                {
+                    spawner.accumulator -= spawner.period;
+
+                    Position spawnPosition = position;
+                    int offset = (rand() % 3) - 1;
+                    spawnPosition.vec.x += static_cast<float>(offset) * spawner.laneWidth;
+
+                    commands.spawn(assets.read(spawner.scene)->blueprint).add(spawner.sceneRoot, spawnPosition);
                 }
             }
         });
