@@ -28,11 +28,9 @@ void scorePlugin(cubos::engine::Cubos& cubos)
 
     cubos.system("ImGUI score")
         .tagged(imguiTag)
-        .call([]() {
+        .call([](const Score& score) {
             ImGui::Begin("Score Window!");
-            // ImGui::Text("Hello world!");
+            ImGui::Text("Score: %d", score.score);
             ImGui::End();
-
-            ImGui::ShowDemoWindow();
         });
 }
