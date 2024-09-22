@@ -15,6 +15,7 @@
 #include "accumulated_time.hpp"
 #include "player.hpp"
 #include "armor.hpp"
+#include "jetpack.hpp"
 
 using namespace cubos::engine;
 
@@ -38,6 +39,7 @@ void powerUpPlugin(cubos::engine::Cubos& cubos)
     cubos.depends(playerPlugin);
     cubos.depends(collisionsPlugin);
     cubos.depends(armorPlugin);
+    cubos.depends(jetpackPlugin);
     cubos.depends(transformPlugin);
     cubos.depends(accumulatedTimePlugin);
 
@@ -59,14 +61,24 @@ void powerUpPlugin(cubos::engine::Cubos& cubos)
 
     cubos.system("powerup pickup system")
         .with<Player>()
+        .without<Armor>()
+        .without<Jetpack>()
         .call([](Commands cmds, Query<Entity, const CollidingWith&, const PowerUp&, Entity> query) {
             for (auto [player, collidingWith, powerUp, entity] : query)
             {
-                CUBOS_ERROR("COLLIDED POWERUP");
                 cmds.destroy(entity);
-                if (powerUp.type == PowerUpType::ARMOR)
+                switch (powerUp.type)
                 {
-                    cmds.add(player, Armor{});
+                    case PowerUpType::ARMOR:
+                        cmds.add(player, Armor{});
+                        break;
+                    
+                    case PowerUpType::JETPACK:
+                        cmds.add(player, Jetpack{});
+                        break;
+                    default:
+                        CUBOS_ERROR("Powerup type not in switch case!");
+                        break;
                 }
             }
         });

@@ -15,6 +15,8 @@
 #include "powerup.hpp"
 #include "score.hpp"
 #include "spawner.hpp"
+#include "jetpack.hpp"
+#include "gui.hpp"
 
 using namespace cubos::engine;
 
@@ -43,8 +45,10 @@ int main()
     cubos.plugin(obstaclePlugin);
     cubos.plugin(playerPlugin);
     cubos.plugin(armorPlugin);
+    cubos.plugin(jetpackPlugin);
     cubos.plugin(powerUpPlugin);
     cubos.plugin(spawnerPlugin);
+    cubos.plugin(guiPlugin);
 
     cubos.startupSystem("configure settings").tagged(settingsTag).call([](Settings& settings) {
         settings.setString("assets.io.path", SAMPLE_ASSETS_FOLDER);

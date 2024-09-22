@@ -18,7 +18,7 @@
 using namespace cubos::engine;
 
 static const Asset<VoxelGrid> ArmorPowerUpAsset = AnyAsset("fd89da0f-72d2-4ef9-9297-f73ff2ca5c63");
-static const Asset<VoxelGrid> JetpackPowerUpAsset = AnyAsset("fd89da0f-72d2-4ef9-9297-f73ff2ca5c63");
+static const Asset<VoxelGrid> JetpackPowerUpAsset = AnyAsset("732498a6-7675-4efa-86ef-8f35d3bec485");
 
 CUBOS_REFLECT_IMPL(Spawner)
 {
@@ -56,7 +56,7 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
                     Position spawnPosition = position;
                     int offset = (rand() % 3) - 1;
                     spawnPosition.vec.x += static_cast<float>(offset) * spawner.laneWidth;
-                    PowerUpType powerUpType = static_cast<PowerUpType>(rand() % 1);
+                    PowerUpType powerUpType = static_cast<PowerUpType>(rand() % 2);
 
                     auto powerUpEntity = commands.create()
                         .add(spawnPosition)
@@ -71,7 +71,7 @@ void spawnerPlugin(cubos::engine::Cubos& cubos)
                         commands.add(powerUpEntity, RenderVoxelGrid{ArmorPowerUpAsset, glm::vec3{-4.0f, 0.0f, 0.0f}});
                         break;
                     case PowerUpType::JETPACK:
-                        commands.add(powerUpEntity, RenderVoxelGrid{JetpackPowerUpAsset, glm::vec3{-4.0f, 0.0f, 0.0f}});
+                        commands.add(powerUpEntity, RenderVoxelGrid{JetpackPowerUpAsset, glm::vec3{-2.0f, 0.0f, 0.0f}});
                         break;
                     default:
                         break;
